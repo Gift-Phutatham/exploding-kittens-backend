@@ -28,7 +28,13 @@ class Game {
    * Create a new game with the specified players.
    * @param {string[]} playerNames - The names of the players.
    */
-  constructor(playerNames: any, gameLogCallback: any, seeFureCallback: any, randomCardCallback: any, timerCallback: any) {
+  constructor(
+    playerNames: any,
+    gameLogCallback: any,
+    seeFureCallback: any,
+    randomCardCallback: any,
+    timerCallback: any,
+  ) {
     this.players = playerNames.map((name: string) => new Player(name));
     this.allPlayers = this.players.slice();
     this.deck = new Deck();
@@ -61,7 +67,7 @@ class Game {
       attackStack: this.attackStack,
       lastPlayedCard: this.lastPlayedCard,
       allPlayers: this.allPlayers,
-      lastNopePlayer: this.lastNopePlayer
+      lastNopePlayer: this.lastNopePlayer,
     };
   }
 
@@ -141,7 +147,7 @@ class Game {
   async playCard(
     player: Player,
     cardIndex: number,
-    requestPlayNopeCallback: (player: Player) => Promise<string| null>,
+    requestPlayNopeCallback: (player: Player) => Promise<string | null>,
     updateStateCallback: Function,
     notifyNopeCallback: Function,
   ) {
@@ -152,7 +158,7 @@ class Game {
     this.gameLogCallback(`${this.currentPlayer.name} plays ${playcard.getName()}`);
     this.lastPlayedCard = playcard;
 
-    if (!(playcard instanceof card.NumberCard)){
+    if (!(playcard instanceof card.NumberCard)) {
       this.discardPile.push(playcard);
       player.removeCardByIndex(cardIndex);
     }
@@ -208,7 +214,7 @@ class Game {
     notifyNopeCallback: Function,
     nopeCount = 0,
     lastNopePlayer = this.lastNopePlayer,
-    delay = 5000
+    delay = 5000,
   ): Promise<boolean> {
     let nopePlayed = false;
     notifyNopeCallback(this.lastNopePlayer);
@@ -216,7 +222,7 @@ class Game {
     const hasNope: Array<Player> = [];
     const nopeIndex: Map<string, number> = new Map();
     const trackPlayers: Map<string, Player> = new Map();
-    
+
     for (const player of this.players) {
       const index = player.hasNopeCard();
       trackPlayers.set(player.name, player);
@@ -227,28 +233,35 @@ class Game {
     }
     this.timerCallback(5);
     const response: any = await Promise.race([
-      ...hasNope.map(player => requestPlayNope(player)),
+      ...hasNope.map((player) => requestPlayNope(player)),
       new Promise((resolve) => setTimeout(resolve, delay)),
     ]);
-    
-        if (response) {
-          this.gameLogCallback(`${response} plays nope card`);
-          nopePlayed = true;
-          nopeCount++;
-          this.lastNopePlayer = trackPlayers.get(response)!;
-          this.playNopeCard(trackPlayers.get(response)! , nopeIndex.get(response)!);
-          notifyNopeCallback(this.lastNopePlayer);
-        }
+
+    if (response) {
+      this.gameLogCallback(`${response} plays nope card`);
+      nopePlayed = true;
+      nopeCount++;
+      this.lastNopePlayer = trackPlayers.get(response)!;
+      this.playNopeCard(trackPlayers.get(response)!, nopeIndex.get(response)!);
+      notifyNopeCallback(this.lastNopePlayer);
+    }
 
     if (nopePlayed) {
       // Wait for another Nope card in response to the current Nope card
-      const nopeCanceled = await this.waitForNope(requestPlayNope, notifyNopeCallback, nopeCount, this.lastNopePlayer);
+      const nopeCanceled = await this.waitForNope(
+        requestPlayNope,
+        notifyNopeCallback,
+        nopeCount,
+        this.lastNopePlayer,
+      );
       // If nopeCanceled is true, it means an even number of Nopes were played, so the original action is not canceled
       return nopeCanceled;
     } else {
       // If nopePlayed is false, it means there were no more Nopes played
       // If nopeCount is odd, the original action is canceled
-      if (nopeCount % 2 === 1) { this.gameLogCallback(`card effect is canceled by nope`) };
+      if (nopeCount % 2 === 1) {
+        this.gameLogCallback(`card effect is canceled by nope`);
+      }
       return nopeCount % 2 === 1;
     }
   }
@@ -319,7 +332,9 @@ class Game {
    */
   useFavorCard(targetPlayer: Player) {
     if (targetPlayer.getHandLength() == 0) {
-      this.gameLogCallback(`${this.currentPlayer.name} try to steal from ${targetPlayer.name}, but he does not have any card`);
+      this.gameLogCallback(
+        `${this.currentPlayer.name} try to steal from ${targetPlayer.name}, but he does not have any card`,
+      );
       return;
     }
     const chosenCard = targetPlayer.giveRandomCard();

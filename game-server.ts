@@ -17,7 +17,13 @@ class GameServer {
     playNopeCallBack: (roomID: string, player: string) => Promise<any>,
     requestCardCallBack: (roomID: string, player: string) => Promise<any>,
   ) {
-    this.game = new Game(playerNames, this.updateGamelog.bind(this), this.notifySeeFuture.bind(this), this.notifyGetRandomCard.bind(this), this.notifyTimer.bind(this));
+    this.game = new Game(
+      playerNames,
+      this.updateGamelog.bind(this),
+      this.notifySeeFuture.bind(this),
+      this.notifyGetRandomCard.bind(this),
+      this.notifyTimer.bind(this),
+    );
     this.io = io;
     this.actionCallBack = actionCallBack;
     this.playNopeCallBack = playNopeCallBack;

@@ -46,11 +46,10 @@ class SocketServer {
     console.log(`${socket.userName} disconnected to the server`);
     // this.socketList.delete(socket.userName);
     const playerRoom = this.gameRoom.get(socket.roomID);
-    if (!playerRoom || playerRoom.length <= 0){
+    if (!playerRoom || playerRoom.length <= 0) {
       this.gameRoom.delete(socket.roomID);
       this.gameInstances.delete(socket.roomID);
     }
-    
   }
 
   handleJoinRoom(socket: any, roomID: string) {
